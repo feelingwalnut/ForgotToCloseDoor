@@ -1,7 +1,7 @@
 -- Check Switches.lua
 local deviceIdxArray = {606, 716, 735, 739, 743}  -- Replace with actual device indices
 local OnTimeInSeconds = 530  -- Set the minimum open time in seconds (e.g., 600 seconds = 10 minutes)
--- local maxOnTimeInSeconds = 700  -- Set the maximum open time in seconds 
+local recipient = "your@email.com"  -- Replace with the actual recipient email address
 
 return {
     on = {
@@ -34,12 +34,34 @@ return {
                 end
             end
         end
-local NotificationTable = {dz.NSS_HTTP, dz.NSS_EMAIL}
+        
+        -- Notification settings
+        local NotificationTable = {   
+            -- table with one or more notification systems. 
+            -- Can be one or more of:
+            -- dz.NSS_GOOGLE_CLOUD_MESSAGING, 
+            -- dz.NSS_PUSHOVER,               
+            dz.NSS_HTTP, 
+            -- dz.NSS_KODI, 
+            -- dz.NSS_LOGITECH_MEDIASERVER, 
+            -- dz.NSS_NMA,
+            -- dz.NSS_PROWL, 
+            -- dz.NSS_PUSHALOT, 
+            -- dz.NSS_PUSHBULLET, 
+            -- dz.NSS_PUSHSAFER,
+        } -- uncomment the ones you need
 
         if openDeviceCount == 1 then
             local message = "Device " .. openDeviceName .. " was left open for " .. tostring(openDeviceTime) .. " seconds."
             logWrite("Check switch: " .. message)
-            dz.notify("Check switch", message, nil, nil, "", NotificationTable)  -- Adjust notification system as needed
+            
+            -- Send notifications
+            dz.notify("Check switch", message, nil, nil, "", NotificationTable)
+            
+            -- Send email notification
+            local subject = "Device Left Open Alert"
+            local emailMessage = "Alert: The device '" .. openDeviceName .. "' was left open for " .. tostring(openDeviceTime) .. " seconds."
+            dz.email(subject, emailMessage, recipient)
         end
     end
 }
