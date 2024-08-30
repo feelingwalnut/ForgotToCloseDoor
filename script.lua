@@ -1,16 +1,16 @@
 -- Check Switches.lua
 local deviceIdxArray = {606, 716, 735, 739, 743}  -- Replace with actual device indices
-local minOnTimeInSeconds = 60  -- Set the minimum open time in seconds
-local maxOnTimeInSeconds = 70  -- Set the maximum open time in seconds (e.g., 600 seconds = 10 minutes)
+local OnTimeInSeconds = 530  -- Set the minimum open time in seconds (e.g., 600 seconds = 10 minutes)
+-- local maxOnTimeInSeconds = 700  -- Set the maximum open time in seconds 
 
 return {
     on = {
-        timer = {'every minute'},   
+        timer = {'every 5 minutes'},   
     },
     
     logging = {   
         level = domoticz.LOG_DEBUG,   
-        marker = "Check switches" 
+        marker = "Left Door Open Check" 
     },    
 
     execute = function(dz, item)
@@ -27,23 +27,19 @@ return {
             local minutesAgo = device.lastUpdate.minutesAgo * 60  -- Convert minutes to seconds
 
             if device.active then
-                if minutesAgo > maxOnTimeInSeconds then
-                    -- Do nothing if open time exceeds maxOnTimeInSeconds
-                    return
-                end
-
-                if minutesAgo > minOnTimeInSeconds then
+                if minutesAgo > OnTimeInSeconds then
                     openDeviceCount = openDeviceCount + 1
                     openDeviceName = device.name  -- Store the name of the open device
                     openDeviceTime = minutesAgo
                 end
             end
         end
+local NotificationTable = {dz.NSS_HTTP, dz.NSS_EMAIL}
 
         if openDeviceCount == 1 then
             local message = "Device " .. openDeviceName .. " was left open for " .. tostring(openDeviceTime) .. " seconds."
             logWrite("Check switch: " .. message)
-            dz.notify("Check switch", message, nil, nil, "", {dz.NSS_HTTP})  -- Adjust notification system as needed
+            dz.notify("Check switch", message, nil, nil, "", NotificationTable)  -- Adjust notification system as needed
         end
     end
 }
